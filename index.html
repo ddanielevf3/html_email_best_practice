@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table-based HTML &mdash; Reference Guide</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,500;1,600&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-mark">
+        <img src="assets/vodafonethree-logo.svg" alt="VodafoneThree" width="59" height="30">
+      </span>
+      <span class="logo-text">Email Reference Guides<small>Internal documentation</small></span>
+    </a>
+    <nav class="topnav" aria-label="Main menu">
+      <a class="nav-link current" href="index.html">Table-based HTML</a>
+      <a class="nav-link" href="responsive-design.html">Responsive design</a>
+      <a class="nav-link" href="retina-images.html">Retina images</a>
+      <a class="nav-link" href="dark-mode.html">Dark mode</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <main>
+
+    <div class="module-header">
+      <h1>Table-based HTML</h1>
+    </div>
+    <div class="eyebrow">Reference guide &middot; markup</div>
+
+    <p class="lede">
+      Why email HTML is still built with <code>&lt;table&gt;</code> and inline CSS instead of
+      the <code>&lt;div&gt;</code>/Flexbox/Grid approach used on the web — and how to apply that
+      base to layout, typography, responsiveness, custom fonts and animated GIFs.
+    </p>
+
+    <section id="t-problem">
+      <h2><span class="h-num">01</span>The underlying problem</h2>
+      <p class="section-intro">
+        When building for the web, the browser is (more or less) a single, predictable
+        environment: Chrome, Firefox, Safari and Edge share modern rendering engines (Blink,
+        Gecko, WebKit) that fully support CSS3, Flexbox, Grid, media queries and JavaScript.
+      </p>
+      <p class="section-intro">
+        Emails <strong>don't</strong> open in a browser. They're rendered by the mail client's
+        own rendering engine, and these engines are extremely varied:
+      </p>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Client</th><th>Rendering engine</th></tr></thead>
+          <tbody>
+            <tr><td>Outlook 2007&ndash;2019 (desktop, Windows)</td><td><strong>Microsoft Word</strong> (engine replaced since 2007)</td></tr>
+            <tr><td>Outlook 365 (new, Windows)</td><td>WebView2 (Chromium) &mdash; not on every version</td></tr>
+            <tr><td>Outlook for Mac</td><td>WebKit</td></tr>
+            <tr><td>Gmail (web)</td><td>Proprietary engine, aggressive HTML sanitisation</td></tr>
+            <tr><td>Apple Mail / iOS Mail</td><td>WebKit (good CSS support)</td></tr>
+            <tr><td>Yahoo Mail, AOL</td><td>Proprietary engines, partial CSS support</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        The critical case is <strong>Outlook desktop on Windows</strong>: since 2007, Microsoft
+        has replaced the HTML rendering engine with Word's, for security and
+        Office-integration reasons. Word was never designed to interpret modern CSS: it doesn't
+        support (or only partially supports):
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><code>float</code>, <code>position: absolute/relative</code></li>
+        <li><code>margin</code> (often ignored on <code>&lt;div&gt;</code>s in many versions)</li>
+        <li><code>max-width</code>, <code>min-width</code> reliably</li>
+        <li>Flexbox and CSS Grid (<strong>not supported at all</strong>)</li>
+        <li><code>background-image</code> via CSS (needs a VML fallback)</li>
+        <li><code>border-radius</code></li>
+        <li><code>display: table</code> as a "modern" substitute for real tables</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">
+        A layout built with <code>&lt;div&gt;</code> + modern CSS (the "correct" approach for a
+        website) simply <strong>collapses or breaks</strong> in Outlook.
+      </p>
+    </section>
+
+    <section id="t-why-tables">
+      <h2><span class="h-num">02</span>Why tables work</h2>
+      <p class="section-intro">
+        The <code>&lt;table&gt;</code> element is one of the oldest and most stable in HTML.
+        Every mail client, including Outlook's Word engine, interprets it in essentially the
+        same way because:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Word supports tables natively</strong> (it's a word-processing document:
+        tables are a first-class element), so rendering stays reliable even in the most
+        restrictive client.</li>
+        <li><code>&lt;td&gt;</code>/<code>&lt;tr&gt;</code> provide a <strong>predictable box
+        model</strong>: width, alignment (<code>align</code>, <code>valign</code>), padding and
+        borders behave consistently without relying on modern CSS properties that some clients
+        ignore.</li>
+        <li>Nested tables let you recreate columns, sidebars and "bulletproof" buttons without
+        ever using <code>float</code> or <code>position</code>.</li>
+        <li>They don't suffer from <strong>margin collapsing</strong>, which affects
+        <code>&lt;div&gt;</code>s in partial-CSS environments.</li>
+        <li><code>colspan</code> and <code>rowspan</code> give grid-style layout control that
+        works everywhere, while CSS Grid isn't supported by any Word-based client or by older
+        Gmail clients.</li>
+      </ul>
+      <div class="callout">
+        <strong>In short:</strong> tables aren't the "modern" choice, they're the choice that
+        works in the client with the lowest common denominator of support, which historically
+        is Outlook on Windows — a client still widely used in enterprise/B2B settings.
+      </div>
+    </section>
+
+    <section id="t-breaks">
+      <h2><span class="h-num">03</span>What breaks with a "website" approach</h2>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Website technique</th><th>Behaviour in email</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;div&gt;</code> with <code>display: flex</code> / <code>grid</code></td><td>Ignored in Outlook's Word engine &rarr; columns stack vertically</td></tr>
+            <tr><td><code>position: absolute</code></td><td>Ignored or stripped by many clients &rarr; element out of place or invisible</td></tr>
+            <tr><td>External CSS file (<code>&lt;link rel="stylesheet"&gt;</code>)</td><td><strong>Removed</strong> by Gmail and many webmail clients: external stylesheets don't load</td></tr>
+            <tr><td><code>&lt;style&gt;</code> in the <code>&lt;head&gt;</code></td><td>Partially supported: Gmail keeps it, some clients strip it entirely</td></tr>
+            <tr><td><code>margin</code> on <code>&lt;div&gt;</code></td><td>Often ignored by Outlook</td></tr>
+            <tr><td>Responsive media queries</td><td>Supported by Apple Mail, the Gmail app; <strong>ignored</strong> by Outlook desktop (which always shows the "desktop" version)</td></tr>
+            <tr><td>JavaScript</td><td>Stripped by <strong>every</strong> client for security reasons</td></tr>
+            <tr><td>Custom font-face</td><td>Very partial support; always needs a system-font fallback</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="t-inline-css">
+      <h2><span class="h-num">04</span>Why inline CSS is preferable to external or head <code>&lt;style&gt;</code></h2>
+      <p class="section-intro">
+        On a website, inline CSS (<code>style="..."</code> on a single tag) is considered bad
+        practice: it breaks the separation between structure and presentation, is hard to
+        maintain, and isn't cacheable. In email, the opposite is true, for very concrete
+        reasons:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Many clients strip the entire <code>&lt;head&gt;</code></strong>, and with
+        it any <code>&lt;style&gt;</code> block inside it. Gmail (in some contexts, particularly
+        when an email is forwarded or viewed in "conversation" mode), some enterprise webmail
+        clients and several mobile clients sanitise incoming HTML and cut everything outside
+        the <code>&lt;body&gt;</code>, including stylesheets linked externally with
+        <code>&lt;link&gt;</code>.</li>
+        <li><strong>External CSS almost never loads</strong>: for security and privacy reasons
+        (avoiding tracking via HTTP requests), mail clients don't allow loading remote CSS
+        resources. A template that relies on an external <code>.css</code> file arrives at the
+        recipient completely unstyled.</li>
+        <li><strong>A <code>&lt;style&gt;</code> block in the head is supported
+        "unevenly"</strong>: some clients interpret it, others strip it, others interpret only
+        part of it (for example supporting classes but not descendant selectors or
+        pseudo-selectors). The result isn't predictable.</li>
+        <li><strong>Inline CSS, on the other hand, is supported almost universally</strong>,
+        because every client, even the most restrictive one, still has to render the
+        <code>style</code> attribute on individual tags to show any formatting at all — the
+        same principle by which a Word document applies formatting character by character.</li>
+        <li>As a practical consequence, when a template is generated (e.g. by a drag-and-drop
+        editor or an automated tool), the last step is almost always <strong>CSS
+        inlining</strong>: an automated process that takes the rules written in a "readable"
+        stylesheet during development and transfers them, property by property, into the
+        <code>style</code> attribute of every tag in the final markup. This lets you write and
+        maintain clean CSS during development while still shipping "ugly" but reliable HTML at
+        send time.</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">
+        In practice: external or head CSS is a <strong>development convenience</strong>, not
+        something you can rely on in production; inline CSS is the only approach that
+        guarantees the styling actually reaches the recipient, in every client.
+      </p>
+    </section>
+
+    <section id="t-headings">
+      <h2><span class="h-num">05</span>Why <code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code> aren't used the way they are on a website</h2>
+      <p class="section-intro">
+        On a website these tags play a dual role: semantic (document structure, SEO,
+        accessibility) and visual (the browser automatically applies a consistent, predictable
+        default style). In email, the second role <strong>isn't reliable</strong>:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Every client applies its own default style</strong> to <code>&lt;h1&gt;</code>&ndash;<code>&lt;h6&gt;</code>
+        and <code>&lt;p&gt;</code>, and these defaults aren't uniform: font size, top/bottom
+        margins and font weight vary from client to client. An <code>&lt;h1&gt;</code> that
+        looks large and well-spaced in Apple Mail can appear oversized, with excessive margins
+        or a completely different font, in Outlook or on an Android client, because each
+        applies its own user-agent stylesheet, and some of these aren't reliably overridden by
+        the template's CSS.</li>
+        <li><strong>Default margins are one of the most common problems</strong>: many clients
+        (particularly Outlook and some mobile clients) apply their own vertical margins that the
+        template's CSS can't reliably neutralise (because inline <code>margin: 0</code> is
+        respected in some clients and ignored in others), causing unwanted, inconsistent
+        spacing across clients.</li>
+        <li><strong>Gmail in particular rewrites/normalises some semantic tags</strong>,
+        compressing or altering heading styles unpredictably when it "cleans up" incoming
+        HTML.</li>
+        <li><strong>There's no SEO benefit</strong>: an email is never indexed by search
+        engines, so the main reason a website prefers semantic <code>&lt;h1&gt;</code>/<code>&lt;h2&gt;</code>
+        tags simply doesn't apply here.</li>
+        <li><strong>The accessibility benefit only partly holds</strong>: semantic tags still
+        help screen readers, so they shouldn't be avoided on principle — the point is not to
+        rely on their default visual style.</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">The standard approach is therefore:</p>
+      <ol style="max-width:680px;color:var(--ink-soft);font-size:14px;line-height:1.6;padding-left:20px;">
+        <li>You can keep using <code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code>
+        for semantics (fine for accessibility), but <strong>every desired visual style must be
+        declared explicitly and inline</strong> on each one (font-size, font-family,
+        font-weight, line-height, margin, colour), never relying on the browser/client
+        default.</li>
+        <li>Many professional templates prefer to <strong>avoid heading/paragraph semantic
+        markup altogether</strong>, achieving the same visual result with a table
+        <code>&lt;td&gt;</code> containing inline-styled text (optionally with a
+        <code>role</code> attribute or alt text for accessibility) — precisely to eliminate any
+        client-"inherited" style variable and be 100% certain of the final result.</li>
+        <li>Either way, <strong>margins must always be reset and explicitly re-declared</strong>
+        (<code>style="margin:0; padding:0;"</code>) on every heading/paragraph, to stop each
+        client's user styles adding unwanted spacing.</li>
+      </ol>
+      <p class="footnote" style="max-width:680px;margin-top:12px;">
+        In short: on a website you rely on the browser's default style for headings and
+        paragraphs because it's consistent; in email that default isn't consistent across
+        clients, so every visual property must be declared explicitly and inline, tag by tag,
+        exactly like the rest of the layout.
+      </p>
+    </section>
+
+    <section id="t-typography">
+      <h2><span class="h-num">06</span>Font-size and line-height: getting the sizes right</h2>
+      <p class="section-intro">
+        Just like margins and tag styles, <code>font-size</code> and <code>line-height</code>
+        shouldn't be left to the client's default: they must be declared explicitly, in pixels,
+        on every text element, for the same reason outlined in the previous sections — no
+        client guarantees a default consistent with the others.
+      </p>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">6.1 Units: <code>px</code> only</h3>
+      <ul class="req-list" style="max-width:680px;">
+        <li>Always use <strong><code>px</code></strong>, never <code>em</code>, <code>rem</code>
+        or <code>%</code>: relative units depend on an "inherited" font-size that isn't reliable
+        in mail clients, and some clients (Outlook in particular) interpret them
+        inconsistently.</li>
+        <li>The value must always be declared inline on every text tag
+        (<code>style="font-size:16px; line-height:24px;"</code>), never left to an inherited
+        stylesheet.</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">6.2 Recommended sizes per element</h3>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Element</th><th>Font-size</th><th>Line-height</th><th>Ratio</th></tr></thead>
+          <tbody>
+            <tr><td>Body copy</td><td>14&ndash;16px</td><td>20&ndash;24px</td><td>~1.4&ndash;1.5&times;</td></tr>
+            <tr><td>Main heading (H1 / hero)</td><td>24&ndash;32px</td><td>30&ndash;38px</td><td>~1.2&ndash;1.3&times;</td></tr>
+            <tr><td>Subheading (H2)</td><td>20&ndash;24px</td><td>26&ndash;30px</td><td>~1.25&ndash;1.3&times;</td></tr>
+            <tr><td>Sub-section (H3)</td><td>16&ndash;18px</td><td>22&ndash;24px</td><td>~1.3&times;</td></tr>
+            <tr><td>Button/CTA text</td><td>16&ndash;18px (bold)</td><td>= font-size or +2px</td><td>~1.0&ndash;1.1&times;</td></tr>
+            <tr><td>Captions, notes, footer/legal</td><td>11&ndash;13px</td><td>16&ndash;18px</td><td>~1.4&ndash;1.5&times;</td></tr>
+            <tr><td>Preheader (hidden in preview)</td><td>12&ndash;14px</td><td>n/a (<code>display:none</code>)</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout" style="margin-top:16px;">
+        Never go below <strong>13&ndash;14px</strong> for body copy (below this threshold, many
+        mobile clients, iOS in particular, automatically enlarge the text — <em>text size
+        adjust</em> — altering the intended layout) and never go below <strong>11px</strong>
+        even for legal/footer text, which remains the minimum readable size on screen.
+      </div>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">6.3 How to calculate line-height</h3>
+      <p class="section-intro">
+        The ratio between <code>line-height</code> and <code>font-size</code> follows the same
+        typographic logic as the web, but must always be expressed as an absolute value (px),
+        never as a bare number or percentage:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Long body text (paragraphs):</strong> a ratio of 1.4&times;&ndash;1.6&times;
+        the font-size. Example: <code>font-size:16px</code> &rarr; <code>line-height:22px</code>&ndash;<code>24px</code>.
+        A line-height too tight (close to 1&times;) makes multi-line text tiring to read; one
+        too loose (over 1.8&times;) visually breaks up the paragraph.</li>
+        <li><strong>Titles and headings (few lines, large text):</strong> a tighter ratio,
+        1.2&times;&ndash;1.3&times;. Example: <code>font-size:28px</code> &rarr; <code>line-height:34px</code>.
+        Headings don't need the "breathing room" required by long paragraphs.</li>
+        <li><strong>Buttons/CTAs (single line):</strong> a ratio of ~1&times;&ndash;1.1&times;,
+        i.e. line-height equal to or slightly above the font-size, to correctly centre the text
+        inside the button without adding unwanted vertical space.</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">6.4 Outlook's line-height bug</h3>
+      <p class="section-intro">
+        Outlook (Word engine) has a well-known, problematic behaviour: when
+        <code>line-height</code> is expressed as a percentage or a bare number (e.g.
+        <code>line-height:1.5</code>), Word applies its own line-spacing algorithm that often
+        adds excess spacing compared to what was declared, especially across multiple lines of
+        text.
+      </p>
+      <p class="section-intro">The standard fix is to add, in the same inline <code>style</code>, Microsoft's proprietary property:</p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="tag">&lt;p</span> <span class="attr">style</span>=<span class="str">"font-size:16px; line-height:24px; mso-line-height-rule:exactly; margin:0;"</span><span class="tag">&gt;</span>
+  Paragraph text...
+<span class="tag">&lt;/p&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:14px;">
+        <code>mso-line-height-rule:exactly</code> forces Outlook to respect exactly the declared
+        px value instead of recalculating it, and is considered a rule worth adding by default
+        to every multi-line text block in a professional email template.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">6.5 A note on mobile</h3>
+      <p class="section-intro">
+        Unlike the web, where font-size is often reduced on small screens, in email the
+        practice is the opposite: body text size is kept the same or slightly increased on
+        mobile (typically via the media queries covered in the
+        <a href="responsive-design.html">Responsive Design guide</a>), because the screen is
+        smaller but viewed closer up, and the primary goal remains readability, not information
+        density.
+      </p>
+    </section>
+
+    <section id="t-fonts">
+      <h2><span class="h-num">07</span>Custom fonts (web fonts)</h2>
+      <p class="section-intro">
+        Brand fonts follow the same underlying logic as the rest of this document: what works
+        on a website isn't guaranteed in email, and an explicit fallback must always be planned
+        for.
+      </p>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">7.1 Support is fragmented, not binary</h3>
+      <p class="section-intro">
+        On the web, an <code>@font-face</code> loaded from Google Fonts or Adobe Fonts works
+        identically in every modern browser. In email, web-font support is partial and
+        inconsistent across clients:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Clients that support them</strong> (generally, when implemented via
+        <code>@font-face</code>): Apple Mail (desktop and iOS), Outlook for Mac, and various
+        WebKit-based clients.</li>
+        <li><strong>Clients that ignore them entirely</strong>: Outlook desktop on Windows (Word
+        engine: <code>@font-face</code> isn't interpreted), the Gmail app on Android and iOS,
+        and various native Android clients. These clients automatically fall back to the next
+        font declared in the stack, simply ignoring the custom one.</li>
+        <li>Some clients that do support <code>@font-face</code> don't load external resources
+        (the same problem covered for stylesheets in section 04): if the font is referenced via
+        a <code>&lt;link&gt;</code> to an external service (e.g. Google Fonts), loading can be
+        blocked regardless of the client's technical support for <code>@font-face</code>.</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">
+        The practical result: a meaningful share of recipients will always see the fallback
+        font, not the brand one. This isn't a defect to "fix" with more hacks (section 09), but
+        normal behaviour to design for from the start.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">7.2 How to declare it correctly</h3>
+      <p class="section-intro">
+        Unlike the rest of the document's CSS, <code>@font-face</code> can never be written
+        inline (there's no way to declare an <code>@font-face</code> inside a tag's
+        <code>style</code> attribute): it must go in a <code>&lt;style&gt;</code> block in the
+        <code>&lt;head&gt;</code>, knowing that — as covered in section 04 — that block might
+        still be removed by some clients, which will then simply use the fallback.
+      </p>
+      <div class="codeblock" style="max-width:680px;">
+        <div class="label">HTML + CSS</div>
+        <pre><span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;style&gt;</span>
+    <span class="cm">@font-face {</span>
+      <span class="cm">font-family: 'Brand Sans';</span>
+      <span class="cm">src: url('https://example.com/fonts/brand-sans.woff') format('woff');</span>
+      <span class="cm">font-weight: 400;</span>
+      <span class="cm">font-style: normal;</span>
+    <span class="cm">}</span>
+  <span class="tag">&lt;/style&gt;</span>
+<span class="tag">&lt;/head&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        Then, on every text element, always declare a font stack with a fallback, never the
+        custom font alone:
+      </p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="tag">&lt;td</span> <span class="attr">style</span>=<span class="str">"font-family:'Brand Sans', Arial, Helvetica, sans-serif;
+           font-size:16px; line-height:24px;
+           mso-line-height-rule:exactly; color:#333333;"</span><span class="tag">&gt;</span>
+  Message text...
+<span class="tag">&lt;/td&gt;</span></pre>
+      </div>
+      <ul class="req-list" style="max-width:680px;margin-top:14px;">
+        <li>The first name is the brand font.</li>
+        <li>The second and third are "web-safe" fonts installed by default on the operating
+        system (Arial, Helvetica, Georgia, Times New Roman, Verdana, Trebuchet MS, Courier New):
+        they're the safety net for every client that ignores <code>@font-face</code> or fails to
+        load the font file.</li>
+        <li>The last value is a generic family (<code>sans-serif</code> or <code>serif</code>),
+        as a final guarantee.</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">7.3 Don't design "by eye": verify with Litmus or Email on Acid</h3>
+      <p class="section-intro">
+        The problem with custom fonts is that it's not visible during development: opening the
+        HTML file in a browser, or even in a desktop client like Apple Mail, the custom font
+        almost always loads correctly — the developer's browser doesn't reproduce the behaviour
+        of Outlook, the Gmail app or the other clients that ignore it. Without a dedicated test,
+        it's easy to have the false impression that "the font works", because you're only
+        testing on the clients that already support it.
+      </p>
+      <p class="section-intro">
+        For this reason, before finalising a template with custom fonts, use a cross-client
+        preview tool like <strong>Litmus</strong> or <strong>Email on Acid</strong>: these
+        services send (or render) the email across dozens of real client/device/OS combinations
+        and return actual screenshots of how it appears in each, letting you concretely verify:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li>on which clients the brand font is actually applied;</li>
+        <li>whether the declared fallback (<code>Arial, Helvetica, sans-serif</code>, etc.) is
+        legible and keeps an acceptable visual hierarchy even when the main font doesn't
+        load;</li>
+        <li>whether sizing and line-height (section 06) stay balanced even with the fallback
+        font, which often has different metrics (average character width, height) from the
+        brand font and may therefore wrap at different points or take up more vertical
+        space.</li>
+      </ul>
+      <p class="footnote" style="max-width:680px;margin-top:12px;">
+        This step isn't optional if you're using custom fonts: it's the only way to know, with
+        certainty rather than assumption, what real share of recipients will see the brand font
+        and what share will see the fallback — since your own development environment isn't
+        representative of the full range of clients.
+      </p>
+    </section>
+
+    <section id="t-example">
+      <h2><span class="h-num">08</span>A complete practical example</h2>
+      <p class="section-intro">
+        A minimal but complete example — header, body copy, call-to-action button and footer —
+        that applies every rule covered so far: nested tables, inline CSS, <code>role="presentation"</code>,
+        <code>mso-line-height-rule:exactly</code>, a "bulletproof" button and a conditional
+        wrapper for Outlook.
+      </p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="cm">&lt;!-- Outer wrapper: gives the background colour to the whole client window --&gt;</span>
+<span class="tag">&lt;table</span> <span class="attr">role</span>=<span class="str">"presentation"</span> <span class="attr">width</span>=<span class="str">"100%"</span> <span class="attr">cellpadding</span>=<span class="str">"0"</span> <span class="attr">cellspacing</span>=<span class="str">"0"</span>
+       <span class="attr">border</span>=<span class="str">"0"</span> <span class="attr">style</span>=<span class="str">"background-color:#f2f2f2;"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;tr&gt;</span>
+    <span class="tag">&lt;td</span> <span class="attr">align</span>=<span class="str">"center"</span> <span class="attr">style</span>=<span class="str">"padding:24px 12px;"</span><span class="tag">&gt;</span>
+
+      <span class="cm">&lt;!--[if mso]&gt;</span>
+      <span class="cm">&lt;table role="presentation" width="600" cellpadding="0"</span>
+      <span class="cm">       cellspacing="0" border="0" align="center"&gt;&lt;tr&gt;&lt;td&gt;</span>
+      <span class="cm">&lt;![endif]--&gt;</span>
+
+      <span class="cm">&lt;!-- Main container, fixed 600px width --&gt;</span>
+      <span class="tag">&lt;table</span> <span class="attr">role</span>=<span class="str">"presentation"</span> <span class="attr">width</span>=<span class="str">"600"</span> <span class="attr">cellpadding</span>=<span class="str">"0"</span>
+             <span class="attr">cellspacing</span>=<span class="str">"0"</span> <span class="attr">border</span>=<span class="str">"0"</span> <span class="attr">align</span>=<span class="str">"center"</span>
+             <span class="attr">style</span>=<span class="str">"width:600px; max-width:600px; background-color:#ffffff;"</span><span class="tag">&gt;</span>
+
+        <span class="cm">&lt;!-- Header/title: no h1, text straight in the td --&gt;</span>
+        <span class="tag">&lt;tr&gt;</span>
+          <span class="tag">&lt;td</span> <span class="attr">align</span>=<span class="str">"center"</span>
+              <span class="attr">style</span>=<span class="str">"padding:32px 24px 16px 24px; font-family:Arial,
+              Helvetica, sans-serif; font-size:26px; line-height:32px;
+              mso-line-height-rule:exactly; font-weight:bold;
+              color:#1a1a1a;"</span><span class="tag">&gt;</span>
+            Welcome to Acme
+          <span class="tag">&lt;/td&gt;</span>
+        <span class="tag">&lt;/tr&gt;</span>
+
+        <span class="cm">&lt;!-- Body copy: no p, text straight in the td --&gt;</span>
+        <span class="tag">&lt;tr&gt;</span>
+          <span class="tag">&lt;td</span> <span class="attr">align</span>=<span class="str">"left"</span>
+              <span class="attr">style</span>=<span class="str">"padding:0 24px 24px 24px; font-family:Arial,
+              Helvetica, sans-serif; font-size:16px; line-height:24px;
+              mso-line-height-rule:exactly; color:#333333;"</span><span class="tag">&gt;</span>
+            Thanks for signing up. Your account is ready: you can now
+            log in to the dashboard and start setting up your first
+            project.
+          <span class="tag">&lt;/td&gt;</span>
+        <span class="tag">&lt;/tr&gt;</span>
+
+        <span class="cm">&lt;!-- Call to action: "bulletproof" button --&gt;</span>
+        <span class="tag">&lt;tr&gt;</span>
+          <span class="tag">&lt;td</span> <span class="attr">align</span>=<span class="str">"center"</span> <span class="attr">style</span>=<span class="str">"padding:0 24px 32px 24px;"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;table</span> <span class="attr">role</span>=<span class="str">"presentation"</span> <span class="attr">cellpadding</span>=<span class="str">"0"</span> <span class="attr">cellspacing</span>=<span class="str">"0"</span>
+                   <span class="attr">border</span>=<span class="str">"0"</span><span class="tag">&gt;</span>
+              <span class="tag">&lt;tr&gt;</span>
+                <span class="tag">&lt;td</span> <span class="attr">align</span>=<span class="str">"center"</span> <span class="attr">bgcolor</span>=<span class="str">"#2563eb"</span>
+                    <span class="attr">style</span>=<span class="str">"border-radius:4px;"</span><span class="tag">&gt;</span>
+                  <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"https://example.com/dashboard"</span>
+                     <span class="attr">style</span>=<span class="str">"display:inline-block; padding:14px 28px;
+                     font-family:Arial, Helvetica, sans-serif;
+                     font-size:16px; line-height:16px; font-weight:bold;
+                     color:#ffffff; text-decoration:none;
+                     border-radius:4px;"</span><span class="tag">&gt;</span>
+                    Go to dashboard
+                  <span class="tag">&lt;/a&gt;</span>
+                <span class="tag">&lt;/td&gt;</span>
+              <span class="tag">&lt;/tr&gt;</span>
+            <span class="tag">&lt;/table&gt;</span>
+          <span class="tag">&lt;/td&gt;</span>
+        <span class="tag">&lt;/tr&gt;</span>
+
+        <span class="cm">&lt;!-- Footer: no p, text straight in the td --&gt;</span>
+        <span class="tag">&lt;tr&gt;</span>
+          <span class="tag">&lt;td</span> <span class="attr">align</span>=<span class="str">"center"</span>
+              <span class="attr">style</span>=<span class="str">"padding:16px 24px; background-color:#f7f7f7;
+              font-family:Arial, Helvetica, sans-serif; font-size:12px;
+              line-height:18px; mso-line-height-rule:exactly;
+              color:#888888;"</span><span class="tag">&gt;</span>
+            Acme Inc. - 1 Roma Street, Milan -
+            <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"https://example.com/unsubscribe"</span>
+               <span class="attr">style</span>=<span class="str">"color:#888888;"</span><span class="tag">&gt;</span>Unsubscribe<span class="tag">&lt;/a&gt;</span>
+          <span class="tag">&lt;/td&gt;</span>
+        <span class="tag">&lt;/tr&gt;</span>
+
+      <span class="tag">&lt;/table&gt;</span>
+
+      <span class="cm">&lt;!--[if mso]&gt;</span>
+      <span class="cm">&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</span>
+      <span class="cm">&lt;![endif]--&gt;</span>
+
+    <span class="tag">&lt;/td&gt;</span>
+  <span class="tag">&lt;/tr&gt;</span>
+<span class="tag">&lt;/table&gt;</span></pre>
+      </div>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">8.1 What each block does, line by line</h3>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Outer wrapper (<code>width="100%"</code>)</strong>: the outermost table, as
+        wide as the client window. It only exists to give the background colour
+        (<code>#f2f2f2</code>) to the whole visible area, not to the actual content.</li>
+        <li><strong>Conditional comment <code>&lt;!--[if mso]&gt; ... &lt;![endif]--&gt;</code></strong>:
+        visible only to Outlook. It adds an extra fixed-width table (<code>width="600"</code>)
+        because, unlike other clients, the Word engine doesn't always reliably respect
+        <code>max-width</code> on the inner container: this wrapper "forces" the correct width
+        only where it's needed.</li>
+        <li><strong>Main table (<code>width="600"</code>, <code>align="center"</code>)</strong>:
+        the actual content container, centred, with a fixed width declared both via the HTML
+        attribute and via inline CSS (<code>width:600px; max-width:600px;</code>) — this double
+        declaration (section 03) ensures the value is respected by the largest possible number
+        of clients.</li>
+        <li><strong>Header row and body-copy row</strong>: no <code>&lt;h1&gt;</code> or
+        <code>&lt;p&gt;</code>. As noted in option 2 of section 05, the text is written straight
+        inside the <code>&lt;td&gt;</code>, with all visual styling (font-size, line-height,
+        colour, weight) declared inline on the cell itself. The sizes used (26px/32px for the
+        title, 16px/24px for the body) come directly from the table in section 06, and
+        <code>mso-line-height-rule:exactly</code> neutralises Outlook's bug from section
+        7.4.</li>
+        <li><strong>CTA button</strong>: not a simple styled <code>&lt;a&gt;</code>, but a
+        single-cell mini-table with <code>bgcolor</code> on the <code>&lt;td&gt;</code>: this
+        ensures the button's coloured background is visible even in Outlook, where CSS
+        <code>background-color</code> on an <code>&lt;a&gt;</code> isn't always reliable. The
+        link text has <code>line-height</code> equal to the <code>font-size</code> (a ~1&times;
+        ratio), as recommended for single-line elements.</li>
+        <li><strong>Footer row</strong>: a reduced font-size (12px), consistent with the
+        readability minimums given in section 06, and the same inline treatment as every other
+        line of text.</li>
+      </ul>
+      <p class="footnote" style="max-width:680px;margin-top:12px;">
+        This example is deliberately minimal (a single column, a single button): the same logic
+        — nested tables, always-inline CSS, double HTML+CSS width declarations, a table-based
+        button, <code>mso-line-height-rule:exactly</code> — applies identically to more complex
+        layouts (two columns, images alongside text, a header with a logo), simply by adding
+        further nested <code>&lt;table&gt;</code>/<code>&lt;td&gt;</code> elements inside the
+        cells already present.
+      </p>
+    </section>
+
+    <section id="t-overkill">
+      <h2><span class="h-num">09</span>Why you shouldn't "overkill" the code with device-specific styles</h2>
+      <p class="section-intro">
+        There's a recurring temptation among email developers: as soon as you discover that a
+        client (some version of Outlook, the Gmail app on a particular Android build, Yahoo
+        Mail, Outlook Web Access...) renders something slightly differently, you add a CSS hack
+        targeted specifically at that client (a class like <code>.ExternalClass</code>, an
+        <code>[owa]</code> selector, an <code>@media</code> block for a specific resolution, a
+        conditional comment for a single Outlook build). Doing this once is fine; doing it
+        systematically across dozens of client/version combinations becomes a bigger problem
+        than the one it solves.
+      </p>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">9.1 The number of combinations is unmanageable</h3>
+      <p class="section-intro">
+        Unlike the web, where there are effectively 3&ndash;4 rendering engines (Blink, Gecko,
+        WebKit) updated constantly and predictably, email involves dozens of real combinations
+        of client, operating system, app version and even viewing mode (webmail vs app vs
+        desktop client) for the same service: Outlook 2016/2019/365 desktop, Outlook.com,
+        Outlook for iOS/Android, Gmail web/iOS app/Android app, Apple Mail desktop and on every
+        iOS version, Yahoo, Samsung Mail, Thunderbird, and others still less widespread. Chasing
+        pixel-perfect rendering on every single one of these combinations isn't realistically
+        achievable, and every hack added to fix one specific case is code that's almost never
+        re-tested once it's in production.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">9.2 Hacks pile up and interact unpredictably</h3>
+      <p class="section-intro">
+        Every CSS class or rule targeted at a specific client (<code>.ExternalClass</code>,
+        <code>[owa]</code>, <code>u + .body</code>, <code>.MsoNormal</code>, <code>@media</code>
+        blocks nested for very narrow width ranges, and so on) is meant to isolate that client,
+        but in practice these rules all coexist in the same HTML document and can overlap or
+        conflict with each other: a hack written to fix Outlook 2016 can, combined with a second
+        hack meant for Yahoo, produce an unwanted effect in a third client that neither author
+        anticipated. The more hacks pile up, the harder it becomes to predict — and above all to
+        test — every possible interaction, because cross-client testing (tools like Litmus or
+        Email on Acid, or real devices) has a cost and rarely covers the entire matrix of
+        combinations.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">9.3 Clients change without warning, hacks don't</h3>
+      <p class="section-intro">
+        Unlike browsers, which communicate roadmaps and changes through public channels, mail
+        clients (webmail like Gmail and Outlook.com in particular) update silently, with no
+        public changelog for the email developer. A hack that fixes a rendering defect today
+        might, after a client update, no longer be needed — or worse, start introducing the
+        very problem it was meant to solve, because the client has since fixed its own baseline
+        behaviour and the hack is now layered on top of already-correct rendering. Code full of
+        very specific fixes ages badly and is hard to keep under control over time, because
+        there's no way to know when a hack has become obsolete without manually re-testing it on
+        that client.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">9.4 The weight of the code has a real cost: Gmail's clipping</h3>
+      <div class="callout">
+        Gmail (particularly on the web interface) <strong>automatically truncates</strong>
+        emails whose HTML exceeds roughly <strong>102&nbsp;KB</strong>, inserting a "Message
+        clipped — view entire message" link and hiding everything after it — including, in the
+        worst case, the footer, the unsubscribe/disclaimer link or the tracking pixel. A
+        template with dozens of redundant hacks, duplicated <code>@media</code> blocks for every
+        conceivable width and multiple conditional comments for every Outlook version reaches
+        this limit far faster than a lean template.
+      </div>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">9.5 The right approach: a solid base, a few well-documented, well-tested hacks</h3>
+      <ul class="req-list" style="max-width:680px;">
+        <li>Table-based layout with inline CSS (sections 01&ndash;04) alone covers the vast
+        majority of clients with no extra hacks needed.</li>
+        <li>The few hacks worth keeping are the ones that are standard and have been documented
+        for years in the email community (the <code>&lt;!--[if mso]&gt;</code> conditional
+        comments, <code>mso-line-height-rule:exactly</code>, the table-based bulletproof
+        button): they're extensively tested, stable, and fix real structural problems, not
+        marginal aesthetic details.</li>
+        <li>Responsive media queries should stay few and simple (typically just one, to stack
+        columns below 600px), not multiplied for every conceivable breakpoint or device.</li>
+        <li>Focus on the clients that cover the majority of real end users (typically Gmail,
+        Apple Mail/iOS, Outlook and Yahoo together cover the vast majority of opens), rather
+        than optimising for marginal clients representing a negligible fraction of the
+        audience.</li>
+        <li>Accept that the result won't be pixel-identical on every client: the goal is a
+        message that's readable, well-structured and functional everywhere, not
+        indistinguishable client by client.</li>
+      </ul>
+      <p class="footnote" style="max-width:680px;margin-top:12px;">
+        In short: every line of CSS targeted at a specific case is a permanent cost (file
+        weight, conflict risk, future maintenance) for an often marginal and temporary benefit.
+        It pays to invest in the solidity of the table-based/inline-CSS foundation rather than
+        chasing every single exception.
+      </p>
+    </section>
+
+    <section id="t-gifs">
+      <h2><span class="h-num">10</span>Animated GIFs</h2>
+      <p class="section-intro">
+        Animated GIFs are one of the most common ways to add motion to an email without
+        resorting to video or interactive code (section 01). The same general rule of this
+        document applies here too: support isn't uniform, and a fallback must be designed for,
+        not ignored.
+      </p>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">10.1 Outlook doesn't animate them: it only shows the first frame</h3>
+      <p class="section-intro">
+        The critical case, once again, is Outlook desktop on Windows (Word engine): it doesn't
+        play the animation, but shows the GIF's first frame statically and stops there. This
+        isn't an isolated bug in a specific version: it's a structural, years-stable behaviour
+        of the engine.
+      </p>
+      <div class="callout">
+        The practical consequence is a design rule, not a fix to apply afterwards:
+        <strong>the GIF's first frame must work on its own as a complete static image.</strong>
+        It must contain the main message, the product, the call to action — everything needed
+        to communicate, not a transition frame, a "blank" frame, or one intended only to
+        introduce the animation. Never put critical content (a price, an offer deadline, legal
+        text, the call-to-action button) only in a frame after the first one: on Outlook, that
+        content simply won't exist for the recipient.
+      </div>
+      <p class="section-intro" style="margin-top:14px;">
+        The rest of the frames should be treated as an optional enhancement, following exactly
+        the same controlled-degradation logic covered in the
+        <a href="responsive-design.html">Responsive Design guide</a> for media queries: whoever
+        sees it (most clients) gets a better experience; whoever doesn't (Outlook) still
+        receives a complete, readable message.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">10.2 File weight</h3>
+      <p class="section-intro">
+        Animated GIFs, by their nature, weigh more than an equivalent static image (more frames
+        = more data), and this ties directly into the overall weight problem covered in section
+        10.4: an email approaching the ~102&nbsp;KB threshold above which Gmail applies clipping
+        reaches that limit much faster if it contains heavy GIFs. The most common practical
+        precautions:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li>limit the number of frames and the colour palette to the minimum needed for the
+        desired effect;</li>
+        <li>compress the GIF with dedicated tools before sending;</li>
+        <li>avoid using GIFs for very large areas of the layout (e.g. a full-width animated
+        background): the effect is almost never worth the weight cost.</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">10.3 Alt text and images blocked by default</h3>
+      <p class="section-intro">
+        As already noted in section 01, many clients block image loading by default, showing
+        only the alt text in their place until the recipient chooses to "show images". This
+        applies to GIFs too: the <code>alt</code> attribute isn't optional, because for a real
+        share of recipients it'll be the only thing visible until they enable images.
+      </p>
+    </section>
+
+    <section id="t-summary">
+      <h2><span class="h-num">11</span>Summary</h2>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Aspect</th><th>Website</th><th>Email</th></tr></thead>
+          <tbody>
+            <tr><td>Rendering environment</td><td>Modern browsers, almost a single engine</td><td>Dozens of heterogeneous clients, including a Word engine</td></tr>
+            <tr><td>CSS3/Flexbox/Grid support</td><td>Universal</td><td>Partial or absent</td></tr>
+            <tr><td>External stylesheets</td><td>Always loaded</td><td>Often stripped</td></tr>
+            <tr><td>JavaScript</td><td>Available</td><td>Always stripped</td></tr>
+            <tr><td>Reliable cross-client layout</td><td><code>&lt;div&gt;</code> + CSS</td><td><code>&lt;table&gt;</code> (+ inline CSS, optionally enhanced with progressive enhancement)</td></tr>
+            <tr><td>Font-size / line-height</td><td><code>em</code>/<code>rem</code>/<code>%</code>, inherited from global CSS</td><td>Always explicit, inline <code>px</code>, with <code>mso-line-height-rule:exactly</code> for Outlook</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tag-box designer" style="margin-top:22px;max-width:680px;">
+        <span class="who">Practical rule</span>
+        <p>Design for the weakest client (Outlook/Word) using tables, and layer on modern CSS
+        only where the client supports it — never relying on it for the structural backbone of
+        the layout.</p>
+      </div>
+    </section>
+
+    <footer>
+      Internal documentation &middot; Email Marketing Team.
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

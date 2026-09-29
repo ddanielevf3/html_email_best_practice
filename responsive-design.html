@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsive Design &mdash; Reference Guide</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,500;1,600&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-mark">
+        <img src="assets/vodafonethree-logo.svg" alt="VodafoneThree" width="59" height="30">
+      </span>
+      <span class="logo-text">Email Reference Guides<small>Internal documentation</small></span>
+    </a>
+    <nav class="topnav" aria-label="Main menu">
+      <a class="nav-link" href="index.html">Table-based HTML</a>
+      <a class="nav-link current" href="responsive-design.html">Responsive design</a>
+      <a class="nav-link" href="retina-images.html">Retina images</a>
+      <a class="nav-link" href="dark-mode.html">Dark mode</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <main>
+    <a class="back-link" href="index.html">&larr; All guides</a>
+
+    <div class="module-header">
+      <h1>Responsive Design</h1>
+    </div>
+    <div class="eyebrow">Reference guide &middot; layout</div>
+
+    <p class="lede">
+      "Responsive" in email doesn't mean one technique: media-query stacking, fluid (liquid)
+      layout and hybrid coding solve the same problem in three different ways, each with its own
+      trade-offs.
+    </p>
+
+    <section id="t-responsive">
+      <h2><span class="h-num">01</span>Media-query stacking</h2>
+      <p class="section-intro">
+        Even while staying on the structural table base covered so far, you can still get
+        responsive behaviour: the standard technique is to stack vertically, on small screens,
+        the elements that sit side by side in columns on desktop.
+      </p>
+
+      <div style="max-width:680px;margin:16px 0;overflow-x:auto;">
+        <svg viewBox="0 0 640 260" style="width:100%;height:auto;min-width:480px;">
+          <style>
+            .rd-frame{fill:var(--surface);stroke:var(--ink);stroke-width:2;}
+            .rd-dot{fill:var(--line);}
+            .rd-col{stroke:#ffffff;stroke-width:2;}
+            .rd-label{font-family:'Public Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;fill:var(--ink-soft);}
+            .rd-tag{font-family:'Public Sans',sans-serif;font-size:11px;font-weight:700;fill:var(--ink);}
+            .rd-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;fill:var(--accent);}
+          </style>
+
+          <!-- Desktop frame -->
+          <g transform="translate(20,20)">
+            <text x="115" y="-6" text-anchor="middle" class="rd-label">Screen &ge; 600px</text>
+            <rect x="0" y="0" width="230" height="110" rx="10" class="rd-frame"></rect>
+            <circle cx="14" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="24" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="34" cy="14" r="3" class="rd-dot"></circle>
+            <rect x="14" y="28" width="98" height="68" class="rd-col" fill="var(--accent)"></rect>
+            <rect x="118" y="28" width="98" height="68" class="rd-col" fill="var(--accent-hover)"></rect>
+            <text x="63" y="67" text-anchor="middle" class="rd-tag" fill="#fff">Col 1</text>
+            <text x="167" y="67" text-anchor="middle" class="rd-tag" fill="#fff">Col 2</text>
+          </g>
+
+          <!-- Arrow + breakpoint label -->
+          <g transform="translate(270,60)">
+            <line x1="0" y1="15" x2="90" y2="15" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"></line>
+            <path d="M84,9 L94,15 L84,21 Z" fill="var(--line)"></path>
+            <text x="45" y="-14" text-anchor="middle" class="rd-code">@media</text>
+            <text x="45" y="-1" text-anchor="middle" class="rd-code">max-width:600px</text>
+          </g>
+
+          <!-- Mobile frame -->
+          <g transform="translate(400,20)">
+            <text x="55" y="-6" text-anchor="middle" class="rd-label">Screen &lt; 600px</text>
+            <rect x="0" y="0" width="110" height="180" rx="10" class="rd-frame"></rect>
+            <circle cx="14" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="24" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="34" cy="14" r="3" class="rd-dot"></circle>
+            <rect x="10" y="28" width="90" height="66" class="rd-col" fill="var(--accent)"></rect>
+            <rect x="10" y="100" width="90" height="66" class="rd-col" fill="var(--accent-hover)"></rect>
+            <text x="55" y="65" text-anchor="middle" class="rd-tag" fill="#fff">Col 1</text>
+            <text x="55" y="137" text-anchor="middle" class="rd-tag" fill="#fff">Col 2</text>
+          </g>
+
+          <text x="320" y="225" text-anchor="middle" class="rd-label" style="text-transform:none;font-weight:500;font-style:italic;font-size:12.5px;">Same two columns &mdash; the media query only changes how they're arranged.</text>
+        </svg>
+      </div>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">1.1 How it works: media queries that stack the columns</h3>
+      <p class="section-intro">
+        Each module in the template (e.g. a two- or three-column block: image + text, or two
+        products side by side) is built as a table whose cells carry a dedicated class. A media
+        query in the head's <code>&lt;style&gt;</code> overrides that class below a certain
+        screen width, forcing each cell to take up 100% of the width and behave as a block, so
+        the columns end up one below the other instead of side by side:
+      </p>
+      <div class="codeblock" style="max-width:680px;">
+        <div class="label">HTML + CSS</div>
+        <pre><span class="tag">&lt;style&gt;</span>
+  <span class="cm">@media screen and (max-width: 600px) {</span>
+    <span class="cm">.stack-col {</span>
+      <span class="cm">display: block !important;</span>
+      <span class="cm">width: 100% !important;</span>
+    <span class="cm">}</span>
+  <span class="cm">}</span>
+<span class="tag">&lt;/style&gt;</span>
+
+<span class="tag">&lt;table</span> <span class="attr">role</span>=<span class="str">"presentation"</span> <span class="attr">width</span>=<span class="str">"600"</span> <span class="attr">cellpadding</span>=<span class="str">"0"</span> <span class="attr">cellspacing</span>=<span class="str">"0"</span> <span class="attr">border</span>=<span class="str">"0"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;tr&gt;</span>
+    <span class="tag">&lt;td</span> <span class="attr">class</span>=<span class="str">"stack-col"</span> <span class="attr">width</span>=<span class="str">"300"</span> <span class="attr">valign</span>=<span class="str">"top"</span><span class="tag">&gt;</span>Column 1<span class="tag">&lt;/td&gt;</span>
+    <span class="tag">&lt;td</span> <span class="attr">class</span>=<span class="str">"stack-col"</span> <span class="attr">width</span>=<span class="str">"300"</span> <span class="attr">valign</span>=<span class="str">"top"</span><span class="tag">&gt;</span>Column 2<span class="tag">&lt;/td&gt;</span>
+  <span class="tag">&lt;/tr&gt;</span>
+<span class="tag">&lt;/table&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        In clients that don't support media queries (Outlook desktop, see the
+        <a href="index.html#t-problem">Table-based HTML guide</a>), the rule is
+        simply ignored: the two columns stay side by side as on desktop — a fallback that's
+        still readable, the same controlled-degradation logic seen throughout this document.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">1.2 Why stacking pays off on mobile</h3>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Text readability</strong>: two or three columns side by side on a ~375px-wide
+        screen squeeze text into a column only a few dozen pixels wide, with constant line
+        breaks and a font that looks smaller than intended. Stacked, each text block goes back
+        to using the full available width.</li>
+        <li><strong>Larger tap targets for buttons</strong>: a CTA button designed for a narrow
+        column becomes small and hard to tap accurately. Stacked at full width, the button
+        occupies a much larger tap area, reducing the risk of mis-taps.</li>
+        <li><strong>No zooming or horizontal scrolling</strong>: a fixed-width multi-column
+        layout that isn't stacked forces the recipient to pinch-zoom or scroll horizontally to
+        read the content. Stacking the columns keeps everything readable with only vertical
+        scrolling — the natural gesture on mobile.</li>
+        <li><strong>A natural reading order</strong>: once stacked, the order in which elements
+        stack (set by the order of the <code>&lt;td&gt;</code>s in the markup) matches a natural
+        top-to-bottom reading order — the same pattern a mobile user follows scrolling with
+        their thumb.</li>
+        <li><strong>Degrades without breaking</strong>: because the technique relies on a media
+        query that less permissive clients simply ignore, there's no risk of a broken layout in
+        clients that don't support it: it just falls back to the side-by-side column layout,
+        which still works (see <a href="index.html#t-breaks">Table-based HTML, section 03</a>).</li>
+      </ul>
+      <p class="footnote" style="max-width:680px;margin-top:12px;">
+        In practice: the base is always the table (see <a href="index.html#t-why-tables">Table-based HTML, section 02</a>), and the media query is the only
+        extra layer needed to go from "columns side by side" to "columns stacked" below a given
+        width — and this single change is often what has the biggest real impact on how
+        readable an email actually is when read on a smartphone, which is where most opens
+        happen today.
+      </p>
+    </section>
+
+    <section id="r-fluid">
+      <h2><span class="h-num">02</span>Fluid (liquid) layout</h2>
+      <p class="section-intro">
+        The second approach doesn't stack anything and doesn't need a media query at all: instead
+        of fixed pixel widths, every table and image is sized in <strong>percentages</strong>, so
+        the whole layout naturally grows and shrinks with the available space.
+      </p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="tag">&lt;table</span> <span class="attr">role</span>=<span class="str">"presentation"</span> <span class="attr">width</span>=<span class="str">"100%"</span> <span class="attr">cellpadding</span>=<span class="str">"0"</span> <span class="attr">cellspacing</span>=<span class="str">"0"</span> <span class="attr">border</span>=<span class="str">"0"</span>
+       <span class="attr">style</span>=<span class="str">"width:100%; max-width:600px;"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;tr&gt;</span>
+    <span class="tag">&lt;td&gt;</span>
+      <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="str">"banner.jpg"</span> <span class="attr">width</span>=<span class="str">"600"</span> <span class="attr">alt</span>=<span class="str">""</span>
+           <span class="attr">style</span>=<span class="str">"width:100%; max-width:600px; height:auto; display:block;"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;/td&gt;</span>
+  <span class="tag">&lt;/tr&gt;</span>
+<span class="tag">&lt;/table&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        <code>width="100%"</code> makes the table fill whatever space it's given; <code>max-width</code>
+        stops it from stretching into an absurdly wide banner on a large desktop window. Because
+        this is all plain inline attributes and inline CSS &mdash; no <code>&lt;style&gt;</code>
+        block, no media query &mdash; it keeps working even in the clients that strip the
+        <code>&lt;head&gt;</code> entirely, which is exactly where media-query stacking
+        (section 01) falls back to its unstacked desktop layout instead.
+      </p>
+      <div class="callout">
+        <strong>The trade-off:</strong> fluid alone only resizes, it doesn't reorder. A two-column
+        fluid layout stays side by side at every width &mdash; on a narrow phone screen the two
+        columns just get proportionally thinner, which is exactly the "text squeezed into a
+        sliver" problem described in 1.2. Fluid on its own is best kept for genuinely simple,
+        single-column layouts &mdash; transactional emails, receipts, plain newsletters &mdash;
+        not multi-column ones.
+      </div>
+
+      <div style="max-width:680px;margin:16px 0;overflow-x:auto;">
+        <svg viewBox="0 0 640 210" style="width:100%;height:auto;min-width:480px;">
+          <style>
+            .rd-frame{fill:var(--surface);stroke:var(--ink);stroke-width:2;}
+            .rd-dot{fill:var(--line);}
+            .rd-col{stroke:#ffffff;stroke-width:2;}
+            .rd-label{font-family:'Public Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;fill:var(--ink-soft);}
+            .rd-tag{font-family:'Public Sans',sans-serif;font-size:10px;font-weight:700;fill:#fff;}
+          </style>
+
+          <!-- Wide frame -->
+          <g transform="translate(20,20)">
+            <text x="115" y="-6" text-anchor="middle" class="rd-label">Wide screen</text>
+            <rect x="0" y="0" width="230" height="100" rx="10" class="rd-frame"></rect>
+            <circle cx="14" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="24" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="34" cy="14" r="3" class="rd-dot"></circle>
+            <rect x="14" y="28" width="98" height="58" class="rd-col" fill="var(--accent)"></rect>
+            <rect x="118" y="28" width="98" height="58" class="rd-col" fill="var(--accent-hover)"></rect>
+            <text x="63" y="61" text-anchor="middle" class="rd-tag">Col A</text>
+            <text x="167" y="61" text-anchor="middle" class="rd-tag">Col B</text>
+          </g>
+
+          <!-- Arrow -->
+          <g transform="translate(270,55)">
+            <line x1="0" y1="15" x2="90" y2="15" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"></line>
+            <path d="M84,9 L94,15 L84,21 Z" fill="var(--line)"></path>
+            <text x="45" y="-6" text-anchor="middle" class="rd-label" style="font-size:10px;">just resizes</text>
+          </g>
+
+          <!-- Narrow frame: same 2 columns side by side, just thinner -->
+          <g transform="translate(400,20)">
+            <text x="55" y="-6" text-anchor="middle" class="rd-label">Narrow screen</text>
+            <rect x="0" y="0" width="110" height="100" rx="10" class="rd-frame"></rect>
+            <circle cx="10" cy="14" r="2.4" class="rd-dot"></circle>
+            <circle cx="17" cy="14" r="2.4" class="rd-dot"></circle>
+            <circle cx="24" cy="14" r="2.4" class="rd-dot"></circle>
+            <rect x="8" y="28" width="45" height="58" class="rd-col" fill="var(--accent)"></rect>
+            <rect x="57" y="28" width="45" height="58" class="rd-col" fill="var(--accent-hover)"></rect>
+            <text x="30" y="61" text-anchor="middle" class="rd-tag" style="font-size:8px;">Col A</text>
+            <text x="79" y="61" text-anchor="middle" class="rd-tag" style="font-size:8px;">Col B</text>
+          </g>
+
+          <text x="320" y="175" text-anchor="middle" class="rd-label" style="text-transform:none;font-weight:500;font-style:italic;font-size:12.5px;">Still side by side, just squeezed &mdash; nothing reorders, unlike the stacking diagram above.</text>
+        </svg>
+      </div>
+    </section>
+
+    <section id="r-hybrid">
+      <h2><span class="h-num">03</span>Hybrid coding (fluid-hybrid)</h2>
+      <p class="section-intro">
+        Hybrid coding is the answer to the gap between the other two: it gets <strong>real column
+        stacking</strong>, like media queries give you, but without needing a <code>&lt;style&gt;</code>
+        block or media-query support at all &mdash; which means it survives being stripped down by
+        aggressive webmail sanitisers or a forwarded/copy-pasted email, cases where an external or
+        even a head <code>&lt;style&gt;</code> block (section 04 of the
+        <a href="index.html#t-inline-css">Table-based HTML guide</a>) can simply vanish.
+      </p>
+      <p class="section-intro">
+        The trick: each "column" becomes its own block-level element sized with
+        <code>display:inline-block</code>, <code>width:100%</code> and a pixel
+        <code>max-width</code>. Placed side by side with no line break between them in the
+        source, two such blocks sit next to each other while there's room, and wrap onto their
+        own line the moment the container is narrower than both <code>max-width</code>s combined
+        &mdash; a real reflow, driven by ordinary CSS box-wrapping, not a media query. Outlook
+        (which ignores <code>max-width</code> and <code>display:inline-block</code> alike) is
+        handed a separate, rigid, fixed-width table through an <code>&lt;!--[if mso]--&gt;</code>
+        conditional comment, so it always gets the desktop side-by-side version &mdash; consistent
+        with the rest of this document's Outlook-is-the-floor approach.
+      </p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="tag">&lt;div</span> <span class="attr">style</span>=<span class="str">"display:inline-block; width:100%; max-width:300px; vertical-align:top;"</span><span class="tag">&gt;</span>
+  <span class="cm">&lt;!--[if mso]&gt;</span>
+  <span class="cm">&lt;table role="presentation" width="300"&gt;&lt;tr&gt;&lt;td&gt;</span>
+  <span class="cm">&lt;![endif]--&gt;</span>
+
+  <span class="tag">&lt;table</span> <span class="attr">role</span>=<span class="str">"presentation"</span> <span class="attr">width</span>=<span class="str">"100%"</span> <span class="attr">cellpadding</span>=<span class="str">"0"</span> <span class="attr">cellspacing</span>=<span class="str">"0"</span> <span class="attr">border</span>=<span class="str">"0"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;tr&gt;</span>
+      <span class="tag">&lt;td</span> <span class="attr">style</span>=<span class="str">"padding:10px; font-family:Arial, sans-serif; font-size:14px;"</span><span class="tag">&gt;</span>
+        Column content
+      <span class="tag">&lt;/td&gt;</span>
+    <span class="tag">&lt;/tr&gt;</span>
+  <span class="tag">&lt;/table&gt;</span>
+
+  <span class="cm">&lt;!--[if mso]&gt;</span>
+  <span class="cm">&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</span>
+  <span class="cm">&lt;![endif]--&gt;</span>
+<span class="tag">&lt;/div&gt;&lt;!--</span><span class="tag">&gt;&lt;div</span> <span class="attr">style</span>=<span class="str">"display:inline-block; width:100%; max-width:300px; vertical-align:top;"</span><span class="tag">&gt;</span>
+  <span class="cm">... second column, identical structure ...</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+      </div>
+      <p class="footnote" style="max-width:680px;">
+        The <code>&lt;/div&gt;&lt;!--&gt;&lt;div&gt;</code> join on one line is deliberate: any
+        whitespace between two <code>inline-block</code> elements renders as a visible gap, so
+        the two column tags have to butt up against each other in the source with no line break.
+      </p>
+
+      <div style="max-width:680px;margin:16px 0;overflow-x:auto;">
+        <svg viewBox="0 0 640 290" style="width:100%;height:auto;min-width:480px;">
+          <style>
+            .rd-frame{fill:var(--surface);stroke:var(--ink);stroke-width:2;}
+            .rd-dot{fill:var(--line);}
+            .rd-col{stroke:#ffffff;stroke-width:2;}
+            .rd-label{font-family:'Public Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;fill:var(--ink-soft);}
+            .rd-tag{font-family:'Public Sans',sans-serif;font-size:11px;font-weight:700;fill:#fff;}
+            .rd-caption{font-family:'Public Sans',sans-serif;font-size:12.5px;font-weight:500;font-style:italic;fill:var(--ink-soft);}
+          </style>
+
+          <!-- Wide frame: two inline-block columns side by side -->
+          <g transform="translate(20,20)">
+            <text x="115" y="-6" text-anchor="middle" class="rd-label">Room for both max-widths</text>
+            <rect x="0" y="0" width="230" height="110" rx="10" class="rd-frame"></rect>
+            <circle cx="14" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="24" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="34" cy="14" r="3" class="rd-dot"></circle>
+            <rect x="14" y="28" width="98" height="68" class="rd-col" fill="var(--accent)" stroke-dasharray="0"></rect>
+            <rect x="118" y="28" width="98" height="68" class="rd-col" fill="var(--accent-hover)"></rect>
+            <text x="63" y="67" text-anchor="middle" class="rd-tag">max 300px</text>
+            <text x="167" y="67" text-anchor="middle" class="rd-tag">max 300px</text>
+          </g>
+
+          <!-- Arrow -->
+          <g transform="translate(270,60)">
+            <line x1="0" y1="15" x2="90" y2="15" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"></line>
+            <path d="M84,9 L94,15 L84,21 Z" fill="var(--line)"></path>
+            <text x="45" y="-6" text-anchor="middle" class="rd-label" style="font-size:9.5px;">wraps like a word,<tspan x="45" dy="11">no media query</tspan></text>
+          </g>
+
+          <!-- Narrow frame: columns wrap like inline-block/text -->
+          <g transform="translate(400,20)">
+            <text x="55" y="-6" text-anchor="middle" class="rd-label">Not enough room</text>
+            <rect x="0" y="0" width="110" height="180" rx="10" class="rd-frame"></rect>
+            <circle cx="14" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="24" cy="14" r="3" class="rd-dot"></circle>
+            <circle cx="34" cy="14" r="3" class="rd-dot"></circle>
+            <rect x="10" y="28" width="90" height="66" class="rd-col" fill="var(--accent)"></rect>
+            <rect x="10" y="100" width="90" height="66" class="rd-col" fill="var(--accent-hover)"></rect>
+            <text x="55" y="65" text-anchor="middle" class="rd-tag">max 300px</text>
+            <text x="55" y="137" text-anchor="middle" class="rd-tag">max 300px</text>
+          </g>
+
+          <text x="320" y="250" text-anchor="middle" class="rd-caption">
+            <tspan x="320" dy="0">Same outcome as media-query stacking &mdash; but this is plain CSS box-wrapping:</tspan>
+            <tspan x="320" dy="19">no &lt;style&gt; block, no @media, required at all.</tspan>
+          </text>
+        </svg>
+      </div>
+    </section>
+
+    <section id="r-compare">
+      <h2><span class="h-num">04</span>Comparing the three approaches</h2>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Approach</th><th>Needs <code>&lt;style&gt;</code>/media-query support?</th><th>Reorders columns?</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td>Media-query stacking (section 01)</td><td>Yes &mdash; degrades to the desktop layout where unsupported</td><td>Yes, where supported</td><td>Most templates, when you can rely on a surviving <code>&lt;style&gt;</code> block</td></tr>
+            <tr><td>Fluid (section 02)</td><td>No</td><td>No &mdash; only resizes</td><td>Simple, single-column, transactional emails</td></tr>
+            <tr><td>Hybrid (section 03)</td><td>No</td><td>Yes, always</td><td>Multi-column layouts that must stack even with <code>&lt;style&gt;</code> stripped</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote" style="max-width:680px;">
+        None of these is "the" correct answer &mdash; they're different trade-offs between how
+        much control you get and how much markup complexity you take on. Many production
+        templates mix them: a fluid single-column shell with one or two hybrid two-column modules
+        dropped inside it where the layout genuinely needs to reorder.
+      </p>
+    </section>
+
+    <section id="r-summary">
+      <h2><span class="h-num">05</span>Summary</h2>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td>What makes columns actually reorder on mobile?</td><td>Either a media query (needs a surviving <code>&lt;style&gt;</code> block) or the hybrid <code>inline-block</code>/<code>max-width</code> trick (needs neither).</td></tr>
+            <tr><td>What's the simplest approach with the least markup?</td><td>Fluid percentage widths &mdash; but it only resizes, it never reorders columns.</td></tr>
+            <tr><td>What survives a client stripping the <code>&lt;head&gt;</code>?</td><td>Fluid and hybrid, since both rely only on inline attributes/CSS. Pure media-query stacking falls back to its unstacked desktop layout.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tag-box designer" style="margin-top:22px;max-width:680px;">
+        <span class="who">Practical rule</span>
+        <p>Reach for hybrid when a layout must reliably reorder regardless of client; plain
+        media-query stacking is fine, and simpler to hand-write, everywhere else; keep pure fluid
+        for the single-column templates that never needed to reorder in the first place.</p>
+      </div>
+    </section>
+
+    <footer>
+      Internal documentation &middot; Email Marketing Team.
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

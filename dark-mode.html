@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dark Mode &mdash; Reference Guide</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,500;1,600&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-mark">
+        <img src="assets/vodafonethree-logo.svg" alt="VodafoneThree" width="59" height="30">
+      </span>
+      <span class="logo-text">Email Reference Guides<small>Internal documentation</small></span>
+    </a>
+    <nav class="topnav" aria-label="Main menu">
+      <a class="nav-link" href="index.html">Table-based HTML</a>
+      <a class="nav-link" href="responsive-design.html">Responsive design</a>
+      <a class="nav-link" href="retina-images.html">Retina images</a>
+      <a class="nav-link current" href="dark-mode.html">Dark mode</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <main>
+    <a class="back-link" href="index.html">&larr; All guides</a>
+
+    <div class="module-header">
+      <h1>Dark Mode</h1>
+    </div>
+    <div class="eyebrow">Reference guide &middot; rendering</div>
+
+      <p class="section-intro">
+        In recent years, most email clients have introduced a dark mode, following the device's
+        system setting. Here too the behaviour isn't uniform across clients, and on top of that
+        — unlike the previous topics — the client can alter the email's appearance even without
+        the developer writing a single line of dark-mode code, which introduces a new risk:
+        automatic, unplanned rendering changes.
+      </p>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">Two very different behaviours across clients</h3>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Clients that apply "smart" algorithmic inversion</strong> (typically some
+        versions of Outlook mobile): they analyse the declared colours and invert or re-adapt
+        them automatically for a dark background, with no precise developer control over the
+        result. This can produce unwanted effects: a logo with a transparent background
+        designed for a white background can become illegible, or dark text forced to light can
+        end up with insufficient contrast against a background the client hasn't changed in the
+        same way.</li>
+        <li><strong>Clients that respect explicit developer declarations</strong> (Apple Mail,
+        iOS Mail, and others): they let you declare, in a controlled way, how the email should
+        behave in dark mode, via dedicated meta tags and CSS media queries.</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">New: Gmail can now block its own forced dark mode</h3>
+      <p class="section-intro">
+        Gmail used to be the textbook example of the first, uncontrollable category above: for
+        years it applied a forced dark theme to every email with zero developer control &mdash;
+        algorithmic darkening on Android (Chromium's engine), and a full <strong>luminance
+        inversion</strong> on iOS, which had the perverse effect of turning emails that were
+        already designed dark into light ones. That changed on <strong>31 August 2026</strong>,
+        when Google closed a 5-year-old bug report and shipped a fix, reported by email
+        developer <strong>Mark Robbins</strong> on
+        <a href="https://emailmarkup.org/blog/gmail-app-dark-mode-update/" target="_blank" rel="noopener">emailmarkup.org</a>.
+      </p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="str">"color-scheme"</span> <span class="attr">content</span>=<span class="str">"light only"</span><span class="tag">&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        With this tag in the <code>&lt;head&gt;</code>, the Gmail app (Android <strong>and</strong>
+        iOS &mdash; the fix covers both, even though the bug was originally filed against Android
+        only) skips its forced dark conversion entirely: the email renders exactly as designed,
+        as if opened in light mode.
+      </p>
+      <div class="callout">
+        Three things worth knowing before reaching for this:
+        <ul class="req-list" style="max-width:none;margin-top:8px;">
+          <li>It's a <strong>block</strong>, not real dark-mode support: Gmail still doesn't
+          support <code>@media (prefers-color-scheme: dark)</code> for custom dark styling, this
+          only lets you opt out of its automatic conversion.</li>
+          <li>It only applies to <strong>Google accounts</strong> (<code>@gmail.com</code> and
+          Google Workspace) opened in the Gmail app &mdash; not to third-party accounts (Yahoo,
+          Outlook, etc.) that happen to be checked through the Gmail app.</li>
+          <li><code>light only</code> can also stop your own
+          <code>@media (prefers-color-scheme: dark)</code> styles from applying in other clients
+          that respect the same meta tag, like Apple Mail desktop &mdash; see the fix right
+          below.</li>
+        </ul>
+      </div>
+
+      <p class="section-intro" style="margin-top:16px;">
+        The <code>color-scheme</code> meta tag mostly affects UI chrome (radio buttons, scroll
+        bars), but some clients &mdash; Apple Mail on desktop among them &mdash; also use it to
+        decide whether your own <code>@media (prefers-color-scheme: dark)</code> styles get
+        applied at all. If you're setting <code>light only</code> for Gmail <strong>and</strong>
+        shipping your own custom dark styles for other clients, reset the supported schemes back
+        to both on <code>:root</code>:
+      </p>
+      <div class="codeblock" style="max-width:680px;">
+        <div class="label">CSS</div>
+        <pre><span class="tag">:root</span> {
+  <span class="attr">color-scheme</span>: <span class="str">light dark</span>;
+}</pre>
+      </div>
+      <p class="footnote" style="max-width:680px;">
+        This reset is only needed if you're also setting your own dark styles elsewhere in the
+        email &mdash; if you're only using <code>light only</code> to block Gmail's forced
+        conversion and nothing else, you can skip it.
+      </p>
+
+      <p class="footnote" style="max-width:680px;margin-top:14px;">
+        Robbins' recommendation: don't add this as a blanket default to every template &mdash;
+        recipients who enabled dark mode did so on purpose. It's most useful as an opt-in switch,
+        and it's a particularly good fit for emails that were <strong>already designed
+        dark</strong>, since it stops the iOS app's luminance inversion from flipping them to
+        light against your intent.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">How to declare explicit support</h3>
+      <p class="section-intro">In the <code>&lt;head&gt;</code>, you declare support for both schemes:</p>
+      <div class="codeblock" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="str">"color-scheme"</span> <span class="attr">content</span>=<span class="str">"light dark"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="str">"supported-color-schemes"</span> <span class="attr">content</span>=<span class="str">"light dark"</span><span class="tag">&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        Then, in a <code>&lt;style&gt;</code> block (with the same support limitations already
+        covered in the <a href="index.html#t-inline-css">Table-based HTML guide</a> — some clients ignore it regardless), CSS media queries are used
+        to override background and text colours only when the device is in dark mode:
+      </p>
+      <div class="codeblock" style="max-width:680px;">
+        <div class="label">CSS</div>
+        <pre><span class="tag">&lt;style&gt;</span>
+  <span class="cm">@media (prefers-color-scheme: dark) {</span>
+    <span class="cm">.email-bg   { background-color:#1a1a1a !important; }</span>
+    <span class="cm">.email-text { color:#f0f0f0 !important; }</span>
+  <span class="cm">}</span>
+<span class="tag">&lt;/style&gt;</span></pre>
+      </div>
+      <p class="footnote" style="max-width:680px;margin-top:12px;">
+        These rules, being class- and media-query-based, can't be written inline (the same
+        technical limitation covered for <code>@font-face</code> in the <a href="index.html#t-fonts">custom fonts section</a>): they must go
+        in the head's <code>&lt;style&gt;</code> block, knowing that clients that remove it will
+        simply use the "light" version declared inline as the base.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">Special attention to images</h3>
+      <p class="section-intro">
+        A logo or image with a transparent background, designed for a light background, can
+        become illegible or "disappear" on a dark background (e.g. a black logo on a
+        transparent background, invisible if the background behind it turns black). The most
+        common fixes are: using logos with a light outline/structure that stays visible on both
+        backgrounds, or showing two variants of the image (light and dark) and swapping between
+        them via CSS based on <code>prefers-color-scheme</code>, in clients that support it.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">Here too: verify with Litmus, don't assume</h3>
+      <p class="section-intro">
+        As with <a href="index.html#t-fonts">custom fonts</a>, dark-mode behaviour isn't visible in your usual
+        development environment: a desktop browser reproduces neither some clients' automatic
+        inversion, nor the specific way Apple Mail or Outlook apply their own rules. The only
+        reliable way to know how the email will really look is to use Litmus's dedicated
+        dark-mode preview, which shows the actual rendering — a real screenshot, not a
+        simulation — of the email in both light and dark mode across the main clients, letting
+        you spot disappearing logos, insufficient-contrast text or unwanted colour inversions in
+        advance, before sending, instead of finding out from recipient complaints.
+      </p>
+
+
+    <footer>
+      Internal documentation &middot; Email Marketing Team.
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

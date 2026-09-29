@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retina Images &mdash; Reference Guide</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,500;1,600&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-mark">
+        <img src="assets/vodafonethree-logo.svg" alt="VodafoneThree" width="59" height="30">
+      </span>
+      <span class="logo-text">Email Reference Guides<small>Internal documentation</small></span>
+    </a>
+    <nav class="topnav" aria-label="Main menu">
+      <a class="nav-link" href="index.html">Table-based HTML</a>
+      <a class="nav-link" href="responsive-design.html">Responsive design</a>
+      <a class="nav-link current" href="retina-images.html">Retina images</a>
+      <a class="nav-link" href="dark-mode.html">Dark mode</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <main>
+    <a class="back-link" href="index.html">&larr; All guides</a>
+
+    <div class="module-header">
+      <h1>Retina Images</h1>
+    </div>
+    <div class="eyebrow">Reference guide &middot; image assets</div>
+
+    <p class="lede">
+      Why a "1:1" image looks blurry on most phones today, why exporting a file "at 2x" doesn't
+      automatically make it sharp, and the checklist to actually get retina-ready assets into
+      an email.
+    </p>
+
+    <div class="callout" style="max-width:none;margin-top:14px;">
+      <strong>The one thing almost every designer gets wrong:</strong> "retina" does not mean
+      "the file has more pixels." It means <strong>the picture actually contains more real
+      detail</strong>. Those are not the same thing, and mixing them up is the single most
+      common mistake in this whole topic.
+    </div>
+
+    <p class="section-intro" style="margin-top:16px;">
+      Picture a blurry photo on your phone. If you pinch-zoom it to make it twice as big, does
+      it get sharper? No &mdash; it just gets <strong>bigger and blurrier</strong>, because
+      you're stretching the exact same information over more space. You haven't added anything
+      that wasn't already there.
+    </p>
+    <p class="section-intro">
+      Exporting a design "at 2x" works exactly the same way. If the photo, icon or screenshot
+      you placed in your design was already low-resolution, doubling the export's pixel count
+      doesn't invent new detail &mdash; it just stretches the existing blur over a bigger file.
+      The file gets heavier. It does not get sharper.
+    </p>
+    <div class="callout" style="max-width:none;">
+      This is exactly the trap: <strong>"I exported my design at 600px instead of 300px, so
+      it's retina-ready."</strong> That's only true if the things placed inside that
+      design &mdash; the photos, the icons &mdash; were themselves already sharp enough at
+      600px. If a 300px stock photo was simply stretched by the software to fill a 600px frame,
+      the exported file is technically "2x" on paper, but it looks exactly as blurry as the
+      300px original &mdash; it's just a bigger file of the same blur.
+    </div>
+
+    <p class="section-intro" style="margin-top:16px;">See it for yourself &mdash; same photo, same declared size, same "2x" pixel count:</p>
+    <div class="compare" style="margin:14px 0;">
+      <figure style="margin:0;">
+        <img src="assets/img/retina-genuine.jpg" width="240" height="175" alt="Sharp version: real detail, the text is legible" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;">
+        <figcaption style="margin-top:8px;font-size:12.5px;color:var(--yes);font-weight:700;">&#10003; Real detail was there from the start</figcaption>
+      </figure>
+      <figure style="margin:0;">
+        <img src="assets/img/retina-fake.jpg" width="240" height="175" alt="Blurry version: shrunk then stretched back, the text is an illegible smudge" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;">
+        <figcaption style="margin-top:8px;font-size:12.5px;color:var(--no);font-weight:700;">&#10007; Shrunk small, then stretched back up</figcaption>
+      </figure>
+    </div>
+    <p class="footnote" style="max-width:680px;">
+      Both files: same crop, same 240&times;175 declared size, both "2x". Only one of them was
+      ever actually sharp. The other one just got stretched &mdash; and stretching a blur only
+      ever makes a bigger blur, never a sharp picture. That's the entire concept in one
+      sentence: <strong>the export setting doesn't create detail; it can only preserve or
+      reveal detail that was already there.</strong> The sections below (14&ndash;18) go into
+      the technical reasons why, and how to check before you ship.
+    </p>
+
+    <section id="r-pixels">
+      <h2><span class="h-num">01</span>CSS pixels and physical pixels: two different things</h2>
+      <p class="section-intro">
+        When you declare <code>width="300"</code> or <code>style="width:300px;"</code> on an
+        image, that value is <strong>not</strong> a count of physical screen pixels: it's a
+        <strong>CSS</strong> (or "logical") pixel, an abstract unit of measurement that the
+        operating system/browser then translates into physical pixels based on the screen's
+        density.
+      </p>
+      <p class="section-intro">
+        The ratio between physical pixels and CSS pixels is called the
+        <strong>Device Pixel Ratio (DPR)</strong>:
+      </p>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Screen type</th><th>DPR</th><th>1 CSS pixel maps to</th></tr></thead>
+          <tbody>
+            <tr><td>Standard screen ("1x")</td><td>1</td><td>1&times;1 physical pixel</td></tr>
+            <tr><td>Retina / high-density screen ("2x")</td><td>2</td><td>2&times;2 = 4 physical pixels</td></tr>
+            <tr><td>Very-high-density screen ("3x", many recent Android phones and iPhones)</td><td>3</td><td>3&times;3 = 9 physical pixels</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="section-intro" style="margin-top:16px;">
+        Visually, this is what "1 CSS pixel" actually is on each screen type &mdash; the same
+        single square of space, subdivided into more and more real, physical pixels as density
+        increases:
+      </p>
+      <div style="max-width:680px;margin:14px 0;overflow-x:auto;">
+        <svg viewBox="0 0 680 340" style="width:100%;height:auto;min-width:520px;font-family:'Public Sans',sans-serif;">
+          <style>
+            .px-label{font-family:'Public Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;fill:var(--ink-soft);}
+            .px-dpr{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:22px;fill:var(--ink);}
+            .px-cell{stroke:#ffffff;stroke-width:3;}
+            .px-caption{font-family:'Public Sans',sans-serif;font-size:13px;font-weight:500;font-style:italic;fill:var(--ink-soft);}
+          </style>
+
+          <!-- 1x column -->
+          <g transform="translate(30,50)">
+            <text x="65" y="-18" text-anchor="middle" class="px-dpr">1&times;</text>
+            <rect x="0" y="0" width="130" height="130" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="0" y="0" width="130" height="130" fill="none" stroke="var(--ink)" stroke-width="2"></rect>
+            <text x="65" y="160" text-anchor="middle" class="px-label">Standard screen</text>
+            <text x="65" y="178" text-anchor="middle" class="px-label">1 physical pixel</text>
+          </g>
+
+          <!-- 2x column -->
+          <g transform="translate(280,50)">
+            <text x="65" y="-18" text-anchor="middle" class="px-dpr">2&times;</text>
+            <rect x="0"  y="0"  width="65" height="65" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="65" y="0"  width="65" height="65" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="0"  y="65" width="65" height="65" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="65" y="65" width="65" height="65" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="0" y="0" width="130" height="130" fill="none" stroke="var(--ink)" stroke-width="2"></rect>
+            <text x="65" y="160" text-anchor="middle" class="px-label">Retina screen</text>
+            <text x="65" y="178" text-anchor="middle" class="px-label">2&times;2 = 4 physical pixels</text>
+          </g>
+
+          <!-- 3x column -->
+          <g transform="translate(500,50)">
+            <text x="65" y="-18" text-anchor="middle" class="px-dpr">3&times;</text>
+            <!-- 3x3 grid, cell size ~43.33 -->
+            <rect x="0"     y="0"     width="43.33" height="43.33" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="43.33" y="0"     width="43.33" height="43.33" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="86.67" y="0"     width="43.33" height="43.33" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="0"     y="43.33" width="43.33" height="43.33" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="43.33" y="43.33" width="43.33" height="43.33" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="86.67" y="43.33" width="43.33" height="43.33" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="0"     y="86.67" width="43.33" height="43.33" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="43.33" y="86.67" width="43.33" height="43.33" class="px-cell" fill="var(--accent)"></rect>
+            <rect x="86.67" y="86.67" width="43.33" height="43.33" class="px-cell" fill="var(--accent-hover)"></rect>
+            <rect x="0" y="0" width="130" height="130" fill="none" stroke="var(--ink)" stroke-width="2"></rect>
+            <text x="65" y="160" text-anchor="middle" class="px-label">Very-high-density</text>
+            <text x="65" y="178" text-anchor="middle" class="px-label">3&times;3 = 9 physical pixels</text>
+          </g>
+
+          <!-- connecting arrows / equal-size annotation -->
+          <line x1="160" y1="115" x2="280" y2="115" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"></line>
+          <line x1="410" y1="115" x2="500" y2="115" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"></line>
+          <text x="340" y="265" text-anchor="middle" class="px-caption">
+            <tspan x="340" dy="0">Same physical size on screen, same "1 CSS pixel" &mdash;</tspan>
+            <tspan x="340" dy="19">just sliced into more real pixels as density goes up.</tspan>
+          </text>
+        </svg>
+      </div>
+      <p class="footnote" style="max-width:680px;">
+        This is exactly why a 1x image looks blurry on a 2x screen: the file only ever supplies
+        <strong>one</strong> colour value per big square, but the screen has <strong>four</strong>
+        physical dots to fill in that same space &mdash; so it has to invent the other three by
+        interpolating.
+      </p>
+
+      <p class="section-intro" style="margin-top:16px;">
+        A box declared <strong>300px CSS</strong> wide therefore occupies:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li>300 physical pixels on a 1x screen</li>
+        <li><strong>600 physical pixels</strong> on a 2x Retina screen</li>
+        <li><strong>900 physical pixels</strong> on a 3x screen</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">
+        The number "300px" in the code never changes: what changes is only how many physical
+        screen pixels are used to draw it.
+      </p>
+    </section>
+
+    <section id="r-why">
+      <h2><span class="h-num">02</span>Why this matters more than ever in email</h2>
+      <p class="section-intro">
+        Today, most emails are opened on a smartphone (iPhone and the majority of recent
+        Android devices), and <strong>virtually every modern smartphone has a high-density
+        screen</strong> (2x or 3x). This means most recipients view emails on a Retina screen,
+        not a standard one.
+      </p>
+      <p class="section-intro">
+        The practical problem: if the uploaded image file has exactly the same pixel
+        resolution as the box it's shown in (e.g. a 300&times;150-pixel file shown in an
+        <code>&lt;img width="300"&gt;</code>), it will look sharp on a 1x screen — but on a 2x
+        Retina screen, that 300&times;150-pixel file gets <strong>enlarged (upscaled)</strong>
+        by the browser to fill the 600&times;300 physical pixels available. The browser has to
+        "invent" the missing pixels through interpolation, and the result is a visibly
+        <strong>blurry or pixelated</strong> image — exactly the same effect as a screenshot
+        zoomed to 200% on a computer.
+      </p>
+    </section>
+
+    <section id="r-rule">
+      <h2><span class="h-num">03</span>The basic rule: export at 2x, declare the dimensions at 1x</h2>
+      <p class="section-intro">
+        The standard fix is simple to state: <strong>the image file must have double (or
+        triple) the real pixels compared to the size it will be displayed at</strong>, while
+        the HTML continues to declare the desired "logical" size (the 1x one):
+      </p>
+      <div class="codeblock good" style="max-width:680px;">
+        <div class="label">HTML</div>
+        <pre><span class="cm">&lt;!-- The file logo@2x.png is actually 600px wide,
+     but is declared at 300px: on a Retina screen the
+     real 600px get "compressed" into the 300px CSS space,
+     appearing sharp. On a standard screen it's simply
+     scaled down, with no perceptible loss. --&gt;</span>
+<span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="str">"logo@2x.png"</span> <span class="attr">width</span>=<span class="str">"300"</span> <span class="attr">height</span>=<span class="str">"150"</span>
+     <span class="attr">alt</span>=<span class="str">"Company logo"</span>
+     <span class="attr">style</span>=<span class="str">"width:300px; height:150px; display:block;"</span><span class="tag">&gt;</span></pre>
+      </div>
+      <p class="section-intro" style="margin-top:16px;">
+        In practice: you <strong>export the file at a higher resolution</strong>, but you
+        <strong>always declare the 1x display size</strong> in the <code>width</code>/<code>height</code>
+        attributes and the inline CSS. This applies to logos, hero images, icons, image-based
+        buttons — any visual asset in the email.
+      </p>
+    </section>
+
+    <section id="r-not-enough">
+      <h2><span class="h-num">04</span>Exporting "at 2x" isn't enough if the source design isn't retina-ready</h2>
+      <p class="section-intro">
+        This is where the most common mistake hides, and it's the reason many emails "exported
+        at 2x" still look blurry on Retina screens even though the file genuinely has double
+        the declared pixels.
+      </p>
+
+      <h3 style="font-size:15px;margin:22px 0 10px;">4.1 Doubling the dimensions isn't the same as doubling the detail</h3>
+      <p class="section-intro">
+        An image file can end up with double the pixels in two completely different ways:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>A genuine resolution doubling</strong>: the source element (a vector, a
+        font, a geometric shape) is redrawn/recalculated from scratch at the higher resolution.
+        Every single pixel of the 2x file is computed directly from the original geometry
+        (vector curves, text outlines, etc.): the result contains real, additional visual
+        information.</li>
+        <li><strong>Upscaling/interpolation</strong>: the source element is already a
+        low-resolution raster file (a photo, a screenshot, an already-compressed stock image),
+        and the design software simply enlarges the canvas and interpolates the existing
+        pixels to fill the extra space. The final file does have double the pixels "on paper",
+        but it contains not a single extra bit of detail compared to the original: it's simply
+        the same blurry image, made bigger.</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">
+        The second case is exactly why an image "exported at 2x" from a design that wasn't
+        built to be retina-ready <strong>isn't actually retina</strong>: the declared pixel
+        count doubles, but the perceived sharpness stays that of the original low-resolution
+        asset. The Retina screen will still display those interpolated, "invented" pixels,
+        which remain just as blurry as the source image.
+      </p>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">4.2 When "@2x" export genuinely works</h3>
+      <p class="section-intro">
+        Exporting at 2x only produces a genuinely sharp result when the elements in the design
+        are resolution-independent from the outset:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Real text</strong> (not text converted to an image): fonts are vector-based
+        by nature, so they're automatically redrawn at the correct density by any export
+        tool.</li>
+        <li><strong>Vector shapes, SVG icons, illustrations created directly in the design
+        tool</strong> (rectangles, circles, paths, vector icon sets): these too are
+        recalculated pixel by pixel at the requested resolution. <strong>This only applies
+        inside the design tool, for the designer doing the export</strong> — email clients
+        don't reliably support SVG or any vector format, so whatever you ship is always a
+        raster image (PNG/JPG) in the end. What being vector-based buys you is a genuinely
+        sharp <em>raster export</em> at any resolution you ask for, not a vector file you can
+        actually send in the email.</li>
+        <li><strong>Photos or raster images that, from the very start, were imported at a
+        sufficiently high resolution</strong> (ideally already at 2x or 3x relative to the
+        final display size): here, exporting "at 2x" merely exports pixels that already existed
+        in the original photo, rather than inventing them.</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">4.3 The question to ask before exporting</h3>
+      <div class="callout">
+        <strong>Ask this, not "did I export at 2x?":</strong> did the source asset already have,
+        from the start, enough real pixels to fill that resolution? If the answer is no — for
+        example a stock photo that was already low-resolution, or a screenshot pasted into the
+        design document — no "2x" export option in the software will recover detail that the
+        source image never had.
+      </div>
+
+      <h3 style="font-size:15px;margin:26px 0 10px;">4.4 If the design is already retina-ready, the export is at 1x (not 2x)</h3>
+      <p class="section-intro">
+        There's a point that often causes confusion: the number "2x" doesn't have to appear as
+        a multiplier in the export panel. There are two equally valid ways to end up with a
+        genuinely retina file:
+      </p>
+      <ul class="req-list" style="max-width:680px;">
+        <li>You design at the logical size (1x) and use the tool's "@2x" export option (Figma,
+        Sketch, Photoshop, etc.), which doubles the pixels at export time. This only works, as
+        covered in 4.1&ndash;4.2, if the elements involved are vector-based or the raster
+        assets were already high-resolution.</li>
+        <li>You design the entire artboard/canvas already at the final physical resolution —
+        that is, if the module needs to appear 300px CSS wide on screen, you draw it from the
+        start on an artboard that is 600px wide in real terms (or 900px for 3x), working
+        directly "at the physical-pixel level". In this case the design <em>is</em> already
+        retina-ready by construction, and the final export is done at 1x, with no multiplier at
+        all: the file exported at 1x from the 600px artboard <em>is</em> already the
+        full-resolution file to use in the email.</li>
+      </ul>
+      <p class="section-intro" style="margin-top:14px;">
+        The key point is that the "2x" multiplier describes the ratio between the final file's
+        resolution and the display size in CSS px, not an action that necessarily has to be
+        carried out in the export panel. A file exported "at 1x" from a canvas built at full
+        Retina resolution is just as retina-ready as a file exported "at 2x" from a 1x canvas
+        with vector/high-resolution assets — provided that, in both cases, the final file
+        genuinely contains double the real pixels relative to the size it will be declared at
+        in HTML, and not just a larger canvas filled in by interpolation.
+      </p>
+      <p class="section-intro">
+        In practice, working directly at 2x from the start of the design eliminates the risk
+        described in 4.1 at the root: since there's no doubling to carry out at export time,
+        there's no way to "forget" and start from a low-resolution asset — every photo or image
+        imported into the document must, from the very first moment, already have the pixels
+        required to fill the artboard at full density.
+      </p>
+    </section>
+
+    <section id="r-check">
+      <h2><span class="h-num">05</span>How to check whether an image is genuinely retina or just "inflated"</h2>
+      <p class="section-intro">A quick test, with no special tools required:</p>
+      <ol style="max-width:680px;color:var(--ink-soft);font-size:14px;line-height:1.6;padding-left:20px;">
+        <li>Open the file exported at 2x and zoom it to 100% (its true pixel size) on screen.</li>
+        <li>Separately, open the original file (before export) and zoom it to 200% on screen.</li>
+        <li><strong>If the two images look equally blurry</strong>, the 2x export was a simple
+        upscale: there was no real doubling of detail, only of the declared pixel count.</li>
+        <li>If, instead, the 2x file looks sharper and richer in detail than the original
+        zoomed to 200%, the source asset genuinely had enough visual information, and the
+        export produced a genuinely retina-ready file.</li>
+      </ol>
+
+      <p class="section-intro" style="margin-top:18px;">
+        Side by side, on the same source photo — both files declared at the exact same
+        240&times;175 CSS size (as if shown on a 2x Retina screen), both nominally "2x":
+      </p>
+      <div class="compare" style="margin:14px 0;">
+        <figure style="margin:0;">
+          <img src="assets/img/retina-genuine.jpg" width="240" height="175" alt="Genuine retina crop of a data screen, with the &quot;NEUTROPHILS&quot; label sharp and legible" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;">
+          <figcaption style="margin-top:8px;font-size:12.5px;color:var(--yes);font-weight:700;">&#10003; Genuine retina &mdash; exported directly from the high-resolution source</figcaption>
+        </figure>
+        <figure style="margin:0;">
+          <img src="assets/img/retina-fake.jpg" width="240" height="175" alt="Fake retina crop of the same data screen, with the label blurred into an illegible smudge" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;">
+          <figcaption style="margin-top:8px;font-size:12.5px;color:var(--no);font-weight:700;">&#10007; Fake retina &mdash; downscaled to 1x first, then upscaled back to 2x</figcaption>
+        </figure>
+      </div>
+      <p class="footnote" style="max-width:680px;">
+        Same crop, same declared pixel count, same CSS display size — the only difference is
+        what happened before export. The "fake" version was shrunk down (destroying the fine
+        detail in the label text) and then enlarged back up, exactly what happens when a
+        low-resolution source is "exported at 2x" without ever holding real 2x detail. Look at
+        the small text under the purple cell in each image.
+      </p>
+    </section>
+
+    <section id="r-checklist">
+      <h2><span class="h-num">06</span>Practical checklist for retina-ready email</h2>
+      <ul class="req-list" style="max-width:680px;">
+        <li><strong>Start from high-resolution assets from the very beginning of the
+        project</strong>: photos, screenshots and images imported into the design document
+        should already have at least double (ideally triple) the pixels relative to the final
+        size they'll be shown at in the email — you can't rely on export to "recover"
+        resolution the source asset doesn't have.</li>
+        <li><strong>Prefer vector elements wherever possible</strong>: logos, icons and CTA
+        button text should stay vector-based (or, for text, be genuine HTML text — see
+        <a href="index.html#t-headings">the Table-based HTML guide, section 05</a>) for as long as possible in the process,
+        becoming raster only at the very last export step.</li>
+        <li><strong>The final file must always have at least double (or triple) the real
+        pixels</strong> relative to the final display size — whether that comes from exporting
+        "at 2x" from a 1x design, or exporting "at 1x" from an artboard already built at full
+        Retina resolution, the result is the same. Either way, the <code>width</code>/<code>height</code>
+        declaration in HTML and CSS always stays at the 1x (logical) size.</li>
+        <li><strong>Balance sharpness against file weight</strong>: doubling or tripling the
+        resolution inevitably increases the file's weight. The image still needs to be well
+        compressed (optimised JPEG for photos, compressed PNG for graphics with few colours) to
+        stay within a reasonable weight — also bearing in mind Gmail's clipping threshold of
+        roughly 102&nbsp;KB for the whole email.</li>
+        <li><strong>Always verify the final file on a real Retina device</strong> (or with the
+        zoom test from section 05) before considering the asset finished, rather than trusting
+        that the export dialog says "2x" in the file name.</li>
+      </ul>
+    </section>
+
+    <section id="r-further">
+      <h2><span class="h-num">07</span>Further reading</h2>
+      <p class="section-intro">
+        A clear explanation of the same concept, aimed at the web in general (not just email),
+        can be found in this article:
+        <a href="https://www.danrodney.com/blog/retina-web-graphics-explained-1x-versus-2x-low-res-versus-hi-res/" target="_blank" rel="noopener">"Retina Web Graphics Explained: 1x versus 2x, Low-Res versus Hi-Res"</a>.
+      </p>
+      <p class="section-intro">The article's main points:</p>
+      <ul class="req-list" style="max-width:680px;">
+        <li>On the web, only the <strong>pixel dimensions</strong> of the file matter, not the
+        "ppi" resolution set in software like Photoshop (e.g. 72ppi): the browser completely
+        ignores that value and only looks at how many pixels the file has.</li>
+        <li><strong>1x (low-res)</strong>: 1 CSS/HTML pixel maps to 1 physical screen pixel —
+        matching the DPR=1 definition already covered in section 01.</li>
+        <li><strong>2x (hi-res / Retina)</strong>: 1 CSS/HTML pixel maps to 2&times;2 physical
+        screen pixels.</li>
+        <li>Practical example from the article: for an element that is 300px wide on the page,
+        you prepare a 300px file for 1x screens and a 600px file for 2x screens. Both files
+        occupy the same physical space on screen, but the 600px version looks sharper because
+        it packs more pixels into the same area.</li>
+        <li><strong>Historical context</strong>: the "Retina display" concept originated with
+        Apple's iPhone&nbsp;4, which doubled the screen's physical pixels (from 320 to 640
+        pixels horizontally) while keeping the same physical size as the iPhone&nbsp;3 — the
+        goal wasn't to show more content, but to render it more sharply.</li>
+        <li>The article recommends preparing both 1x and 2x versions for desktop (where many
+        screens remain 1x), while for mobile a 2x version alone is generally enough, and
+        suggests skipping 3x because, at the time it was written, the perceptible improvement
+        didn't justify the extra file weight.</li>
+      </ul>
+      <p class="footnote" style="margin-top:14px;max-width:680px;">
+        <strong>Context note:</strong> that last point (skipping 3x) reflected the state of the
+        display market at the time the article was published. Today many recent smartphones
+        (including several higher-end iPhones and Android devices) have 3x screens, which is
+        why the checklist in <a href="#r-checklist">section 06</a> of this guide still
+        recommends evaluating a 3x export for email as well, when the file weight allows for it.
+      </p>
+    </section>
+
+    <section id="r-summary">
+      <h2><span class="h-num">08</span>Retina summary</h2>
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead><tr><th>Question</th><th>Correct answer</th></tr></thead>
+          <tbody>
+            <tr><td>What is a CSS pixel?</td><td>A logical unit; the browser translates it into physical pixels based on the screen's DPR.</td></tr>
+            <tr><td>What is DPR?</td><td>The ratio between physical pixels and CSS pixels (1x standard, 2x/3x Retina).</td></tr>
+            <tr><td>Why does a "1:1" file look blurry on Retina?</td><td>Because the screen has more physical pixels than the file provides, and has to interpolate them.</td></tr>
+            <tr><td>Is exporting "at 2x" enough to be retina-ready?</td><td>No: what matters is whether the source asset already had enough real detail, not just whether the final file has more declared pixels.</td></tr>
+            <tr><td>When does 2x export genuinely work?</td><td>With vector or resolution-independent elements (text, shapes, SVG), or with photos already imported at high resolution.</td></tr>
+            <tr><td>When does 2x export NOT work?</td><td>When you enlarge the canvas of an already low-resolution raster image: you get an upscale, not new detail.</td></tr>
+            <tr><td>What if the design is already built at full Retina resolution?</td><td>The export is done at 1x (no multiplier): the canvas is already the 2x/3x file, and just needs to be exported as-is.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tag-box designer" style="margin-top:22px;max-width:680px;">
+        <span class="who">Practical rule</span>
+        <p>Sharpness on Retina screens is decided at the start of the design process (by
+        choosing high-resolution assets), not at the end with an export option — a file with
+        more declared pixels isn't automatically a sharper file.</p>
+      </div>
+    </section>
+
+    <footer>
+      Internal documentation &middot; Email Marketing Team.
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
